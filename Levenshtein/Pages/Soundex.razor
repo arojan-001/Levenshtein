@@ -1,0 +1,33 @@
+﻿<!-- Soundex.razor -->
+
+@page "/soundex"
+
+
+<h3>Soundex Algorithm</h3>
+
+<div>
+    <label for="input">Input:</label>
+    <input id="input" @bind="inputText" />
+</div>
+
+<button @onclick="CalculateSoundex">Calculate Soundex</button>
+
+@if (!string.IsNullOrEmpty(soundexResult))
+{
+    <div>
+        <p>Soundex code for '@inputText': @soundexResult</p>
+    </div>
+}
+
+@code {
+    private string inputText = "";
+    private string soundexResult = "";
+
+    private void CalculateSoundex()
+    {
+        soundexResult = Levenshtein.Data.Soundex.CalculateSoundex(inputText);
+    }
+
+  
+}
+

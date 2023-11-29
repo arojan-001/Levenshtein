@@ -1,0 +1,117 @@
+﻿@page "/"
+
+@using Levenshtein.Data
+@inject LevenshteinService levenshteinService
+<h3>Levenshtein Distance Visualization</h3>
+<div>
+    <label for="str1">String 1:</label>
+    <input id="str1" @bind="str1" />
+</div>
+<div>
+    <label for="str2">String 2:</label>
+    <input id="str2" @bind="str2" />
+</div>
+
+<button @onclick="CalculateDistance">Calculate Distance</button>
+
+@if (result != null)
+{
+    <p>Levenshtein distance between '@levenshteinService.getStr1()' and '@levenshteinService.getStr2()': @result</p>
+    <h4>Levenshtein Distance Matrix:</h4>
+    <div class="matrix-container">
+        <table class="matrix">
+            <thead>
+                <tr>
+                    <th>i\j</th>
+                    <th></th>
+                    @for (int j = 0; j < levenshteinService.getStr2().Length; j++)
+                    {
+                        <th>@levenshteinService.getStr2()[j]</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i <= levenshteinService.getStr1().Length; i++)
+                {
+                    <tr>
+                        @if (i == 0)
+                        {
+                            <td></td>
+                        }
+                        else {
+                            <td> @levenshteinService.getStr1()[i - 1]</td>
+                        }
+
+                        @for (int k = 0; k <= levenshteinService.getStr2().Length; k++)
+                        {
+                            <td> @levenshteinService.GetValueofMatrix(i, k)</td>
+                        }
+
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <h4>Operations:</h4>
+    <ul>
+        @foreach (var operation in operations)
+        {
+            <li>@operation</li>
+        }
+    </ul>
+    
+}
+@code {
+    private string str1 = "";
+    private string str2 = "";
+    private int? result;
+    private List<string> operations;
+
+    protected override async Task OnInitializedAsync()
+    {
+        levenshteinService = new LevenshteinService(str1, str2);
+    }
+
+    private void CalculateDistance()
+    {
+        levenshteinService.setLevenshtein(str1, str2);
+        // Reset variables before calculating distance
+        result = null;
+        operations = null;
+        str1 = levenshteinService.getStr1();
+        str2 = levenshteinService.getStr2();
+
+        result = levenshteinService.CalculateLevenshteinDistance();
+
+        // Populate the operations
+        operations = levenshteinService.GetLevenshteinOperations();
+
+       
+    }
+
+}
+<style>
+    .matrix-container {
+        overflow-x: auto;
+    }
+
+    .matrix {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+        .matrix th, .matrix td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .matrix th {
+            background-color: #f2f2f2;
+        }
+
+        .matrix td {
+            font-family: 'Courier New', monospace;
+        }
+</style>
